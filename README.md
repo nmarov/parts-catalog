@@ -45,7 +45,7 @@ docker run -d --name postgres -e POSTGRES_DB=parts_catalog -e POSTGRES_USER=post
 ./gradlew bootRun
 ```
 
-The backend will be available at http://localhost:8080
+The backend will be available at http://localhost:8081
 
 #### Frontend
 
@@ -102,6 +102,6 @@ The frontend will be available at http://localhost:3000
 
 ## Tasks
 - Keep basket between refreshes
-- Implement ability to remove a basket item
-- Implement ability to update a basket item quantity
-- Display part category name in the basket 
+- Implement ability to remove an item from the basket
+- Implement ability to change a basket item quantity
+- Display part category name in the basket
