@@ -1,35 +1,39 @@
-import React, { useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Typography,
-  Box,
-  Button,
-  Divider,
-  Card,
-  CardContent,
-  CardActions,
-  IconButton,
-  Chip,
-  Alert,
-  Stack,
+    Alert,
+    Box,
+    Button,
+    ButtonGroup,
+    Card,
+    Chip,
+    Divider,
+    IconButton,
+    Snackbar,
+    Stack,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TextField,
+    Typography,
 } from '@mui/material';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Link as RouterLink } from 'react-router-dom';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import {Link as RouterLink} from 'react-router-dom';
+import axios from 'axios';
 
 function Basket({ items, onBasketUpdate, basketId }) {
+  const [loading, setLoading] = useState(false);
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
+
   useEffect(() => {
     // Update basket items when component mounts
     if (onBasketUpdate) {
-      // console.log('Calling onBasketUpdate from Basket component');
-      // console.log('Basket ID:', basketId);
       onBasketUpdate();
     }
   }, [onBasketUpdate, basketId]);
@@ -39,6 +43,34 @@ function Basket({ items, onBasketUpdate, basketId }) {
     return items.reduce((total, item) => {
       return total + item.part.price * item.quantity;
     }, 0);
+  };
+
+  const updateQuantity = async (itemId, newQuantity) => {
+    if (newQuantity < 1) return;
+    
+    setLoading(true);
+    try {
+      await axios.put(`http://localhost:8081/api/basket/${basketId}/items/${itemId}?quantity=${newQuantity}`);
+      onBasketUpdate();
+      setSnackbar({
+        open: true,
+        message: 'Quantity updated successfully',
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('Error updating quantity:', error);
+      setSnackbar({
+        open: true,
+        message: 'Failed to update quantity',
+        severity: 'error'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
   };
 
   if (!items.length) {
@@ -170,12 +202,40 @@ function Basket({ items, onBasketUpdate, basketId }) {
                     </Typography>
                   </TableCell>
                   <TableCell align="right">
-                    <Chip 
-                      label={item.quantity} 
-                      size="small" 
-                      color="primary"
-                      variant="outlined"
-                    />
+                    <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                      <ButtonGroup size="small" variant="outlined">
+                        <IconButton 
+                          size="small" 
+                          onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                          disabled={loading || item.quantity <= 1}
+                        >
+                          <RemoveIcon fontSize="small" />
+                        </IconButton>
+                        <TextField
+                          size="small"
+                          value={item.quantity}
+                          inputProps={{
+                            min: 1,
+                            style: { textAlign: 'center', width: '40px', padding: '4px' }
+                          }}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value, 10);
+                            if (!isNaN(value) && value > 0) {
+                              updateQuantity(item.id, value);
+                            }
+                          }}
+                          variant="outlined"
+                          disabled={loading}
+                        />
+                        <IconButton 
+                          size="small" 
+                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                          disabled={loading}
+                        >
+                          <AddIcon fontSize="small" />
+                        </IconButton>
+                      </ButtonGroup>
+                    </Box>
                   </TableCell>
                   <TableCell align="right">
                     <Typography variant="body2" sx={{ fontWeight: 600, color: 'primary.main' }}>
@@ -183,7 +243,11 @@ function Basket({ items, onBasketUpdate, basketId }) {
                     </Typography>
                   </TableCell>
                   <TableCell align="right">
-                    <IconButton size="small" color="error">
+                    <IconButton 
+                      size="small" 
+                      color="error"
+                      disabled={loading}
+                    >
                       <DeleteIcon fontSize="small" />
                     </IconButton>
                   </TableCell>
@@ -236,6 +300,17 @@ function Basket({ items, onBasketUpdate, basketId }) {
           </Stack>
         </Card>
       </Box>
+      
+      <Snackbar 
+        open={snackbar.open} 
+        autoHideDuration={3000} 
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }

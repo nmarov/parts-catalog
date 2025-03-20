@@ -1,28 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
-  Grid,
-  Card,
-  CardContent,
-  CardActions,
-  Typography,
-  Button,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  TextField,
   Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  CardMedia,
   Chip,
   Divider,
-  IconButton,
-  Tooltip,
-  CardMedia,
-  Skeleton,
+  FormControl,
+  Grid,
+  InputLabel,
+  MenuItem,
   Paper,
-  Stack,
+  Select,
+  TextField,
+  Typography,
 } from '@mui/material';
 import AddShoppingCartIcon from '@mui/icons-material/AddShoppingCart';
-import FilterListIcon from '@mui/icons-material/FilterList';
 import CategoryIcon from '@mui/icons-material/Category';
 import axios from 'axios';
 

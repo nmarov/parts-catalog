@@ -102,6 +102,6 @@ The frontend will be available at http://localhost:3000
 
 ## Tasks
 - Keep basket between refreshes
+- Fix ability to change a basket item quantity
 - Implement ability to remove an item from the basket
-- Implement ability to change a basket item quantity
-- Display part category name in the basket
+- Bonus: Display part category name in the basket
